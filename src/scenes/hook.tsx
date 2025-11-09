@@ -1,7 +1,16 @@
-import { Gradient, Icon, Img, makeScene2D, Txt } from "@motion-canvas/2d";
+/*
+Kabhi socha hai ki, ek simple torch se bhi aap kisi se baten kr skte ho.
+
+Ya fir, ek basic communication ki jarurat, iss duniya ko computer de skti hai.
+
+Ji han! App dekh rhe ho Jigyasu and mai hu Sandeep, Apka swagat krta hu iss series ki sabse pahli video "what is code" main. Jha ham communication ki need se start krke poora computer banane ka safar tay krenge.
+*/
+
+import { Icon, Img, makeScene2D, Txt } from "@motion-canvas/2d";
 import {
   all,
   createRef,
+  easeInCubic,
   easeInOutExpo,
   easeOutCubic,
   easeOutElastic,
@@ -16,7 +25,6 @@ import computer from "../assets/img/computer.jpg";
 import { Logo } from "../components/Logo";
 
 export default makeScene2D(function* (view) {
-  // Create your animations here
   view.add(<Backround />);
 
   const flashlight = createRef<Torch>();
@@ -30,7 +38,7 @@ export default makeScene2D(function* (view) {
   yield* flashlight().blink();
   yield* flashlight().on();
 
-  yield* waitUntil("wait");
+  yield* waitUntil("pics");
 
   yield all(
     flashlight().beam(1, 20000),
@@ -75,15 +83,13 @@ export default makeScene2D(function* (view) {
     img1().opacity(1, 0.4, easeInOutExpo)
   );
 
-  yield* waitUntil("show pic");
-
   yield* all(
     img2().size("40%", 0.4, easeInOutExpo),
     img2().opacity(1, 0.4, easeInOutExpo),
     arrow().scale(10, 0.4, easeInOutExpo)
   );
 
-  yield* waitUntil("stay");
+  yield* waitUntil("logo");
 
   yield* all(
     img2().size(0, 0.6, easeInOutExpo),
@@ -100,7 +106,7 @@ export default makeScene2D(function* (view) {
 
   yield* logo().animate();
 
-  yield* waitUntil("logo remove");
+  yield* waitUntil("title");
 
   yield* logo().unanimate();
 
@@ -119,13 +125,9 @@ export default makeScene2D(function* (view) {
     </Txt>
   );
 
-  yield* waitUntil("title");
-
   yield* title().scale(1, 0.5, easeOutCubic);
 
-  // yield* all(channelName().restore(0.2, easeOutCubic));
+  yield* waitFor(1);
 
-  // yield* hand().opacity(1, 1);
-
-  yield* waitUntil("next");
+  yield* title().scale(0, 0.4, easeInCubic);
 });

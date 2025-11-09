@@ -3,31 +3,19 @@
   "timeEvents": [
     {
       "name": "start",
-      "targetTime": 0.6870045484080608
+      "targetTime": 0.2578334158607224
     },
     {
-      "name": "wait",
-      "targetTime": 2.173179842499299
+      "name": "pics",
+      "targetTime": 2.212009907464867
     },
     {
-      "name": "show pic",
-      "targetTime": 4.426916034831982
-    },
-    {
-      "name": "stay",
-      "targetTime": 5.687604793766354
-    },
-    {
-      "name": "logo remove",
-      "targetTime": 10.587604793766353
+      "name": "logo",
+      "targetTime": 5.811098867807846
     },
     {
       "name": "title",
-      "targetTime": 11.177750537628866
-    },
-    {
-      "name": "next",
-      "targetTime": 12.784859353828963
+      "targetTime": 11.734085679797078
     }
   ],
   "seed": 2118031063

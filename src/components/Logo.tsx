@@ -1,23 +1,14 @@
-import {
-  Circle,
-  Gradient,
-  Layout,
-  Node,
-  NodeProps,
-  Rect,
-  Txt,
-} from "@motion-canvas/2d";
+import { Circle, Gradient, Node, NodeProps, Txt } from "@motion-canvas/2d";
 import {
   all,
   chain,
   createRef,
   delay,
   easeInCubic,
-  easeInElastic,
-  easeInExpo,
   easeOutCubic,
   easeOutElastic,
   easeOutExpo,
+  linear,
   waitFor,
 } from "@motion-canvas/core";
 
@@ -83,7 +74,7 @@ export class Logo extends Node {
           fontSize={150}
           fill={"#fff3"}
           lineWidth={5}
-          shadowBlur={20}
+          shadowBlur={60}
           shadowColor={"#ffff"}
           opacity={0}
           scale={100}
@@ -93,8 +84,8 @@ export class Logo extends Node {
               toY: 50,
               stops: [
                 { offset: 0, color: "#fff5" },
-                { offset: 0.2, color: "#fffa" },
-                { offset: 0.8, color: "#fffa" },
+                { offset: 0.2, color: "#ffff" },
+                { offset: 0.8, color: "#ffff" },
                 { offset: 1.0, color: "#fff5" },
               ],
             })
@@ -104,27 +95,26 @@ export class Logo extends Node {
         {/* ripple */}
         <Circle
           ref={this.ripple}
-          shadowBlur={10}
-          shadowColor={"yellow"}
-          lineWidth={5}
-          fill={"#fff0"}
+          fill={
+            new Gradient({
+              type: "radial",
+              fromRadius: 0,
+              toRadius: 10,
+              stops: [
+                { offset: 0.0, color: "#ffffcc" }, // bright white-yellow core
+                { offset: 0.25, color: "#ffff00" }, // pure yellow
+                { offset: 0.5, color: "#ffb400" }, // golden orange
+                { offset: 0.75, color: "#ff6a00" }, // strong orange-red
+                { offset: 0.9, color: "#e62e00" }, // deep red glow
+                { offset: 1.0, color: "#0000" }, // transparent edge
+              ],
+            })
+          }
           x={0}
           y={-90}
           opacity={0}
           scale={2}
           size={20}
-          stroke={
-            new Gradient({
-              fromY: -10,
-              toY: 10,
-              stops: [
-                { offset: 0, color: "#ff02" },
-                { offset: 0.5, color: "#ff0" },
-
-                { offset: 1.0, color: "#ff02" },
-              ],
-            })
-          }
         />
       </>
     );
@@ -144,20 +134,19 @@ export class Logo extends Node {
       )
     );
 
-    yield* waitFor(0.1);
-
     yield* chain(
-      this.dot().size(10, 0.8, easeOutCubic).to(32, 0.2, easeInCubic),
+      this.dot().size(10, 0.3, easeOutCubic).to(32, 0.2, easeInCubic),
       all(
-        this.ripple().scale(120, 0.2, easeOutCubic),
+        this.ripple().scale(250, 0.2, linear).to(999, 0.2, linear),
         this.dot().opacity(0, 0.01),
         this.ripple().opacity(1, 0.01),
-        this.ripple().lineWidth(0.3, 0.2, easeOutCubic),
         this.i().opacity(0, 0.3, easeOutCubic)
       )
     );
 
-    yield* waitFor(0.2);
+    yield* all(this.ripple().opacity(0, 0.5, linear));
+
+    yield* waitFor(0.1);
 
     yield* all(
       this.jigyasu().opacity(1, 0.6, easeOutCubic),

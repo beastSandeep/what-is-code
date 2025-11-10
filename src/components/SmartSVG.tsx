@@ -18,14 +18,15 @@ export class SmartSVG extends Node {
   public constructor(props?: SmartSVGProps) {
     super({ ...props });
 
-    this.add(<SVG ref={this.svgRef} svg={props.svg} />);
+    this.add(<SVG cache ref={this.svgRef} svg={props.svg} />);
     this.paths = this.svgRef().wrapper.children() as Path[];
 
     for (const path of this.paths) {
       path
         .stroke(path.fill())
         .lineWidth(props.lineWidth || 8)
-        .end(0);
+        .end(0)
+        .cache(true);
       path.fill(null);
     }
   }

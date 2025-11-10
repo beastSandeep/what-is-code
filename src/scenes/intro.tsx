@@ -24,15 +24,12 @@ import {
   cancel,
   chain,
   createRef,
-  createRefArray,
   easeInOutCubic,
   easeOutCubic,
   linear,
   loop,
   makeRef,
   range,
-  sequence,
-  waitFor,
   waitUntil,
 } from "@motion-canvas/core";
 import Backround from "../components/GradientBackgroung";
@@ -374,12 +371,12 @@ export default makeScene2D(function* (view) {
 
   yield* all(
     brainRef().hide(1),
-    chain(
-      ...dottedLines
-        .reverse()
-        .map((dotLine) => all(dotLine.start(1, 0.1), dotLine.opacity(0, 0.1)))
-    ),
-    chain(...svgRefs.reverse().map((sv) => sv().scale(0, 0.08))),
+    brainRef().opacity(0, 0.5),
+
+    ...dottedLines
+      .reverse()
+      .map((dotLine) => all(dotLine.start(1, 0.1), dotLine.opacity(0, 0.3))),
+    ...svgRefs.reverse().map((sv) => sv().scale(0, 0.3)),
     line().start(1, 0.5),
     line().opacity(0, 0.5),
     grid().end(0, 0.5),

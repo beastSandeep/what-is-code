@@ -4,11 +4,14 @@ import {
   chain,
   createRef,
   delay,
+  easeInBack,
   easeInCubic,
+  easeOutBack,
   easeOutCubic,
   easeOutElastic,
   easeOutExpo,
   linear,
+  loop,
   waitFor,
 } from "@motion-canvas/core";
 
@@ -36,6 +39,7 @@ export class Logo extends Node {
             y={-30}
             x={0}
             opacity={0}
+            // offset={[-0.8, 0]}
             size={34}
             ref={this.dot}
           />
@@ -46,11 +50,11 @@ export class Logo extends Node {
             ref={this.i}
             fontFamily={"Poppins"}
             fontWeight={600}
-            fontSize={150}
-            fill={"#fff3"}
-            lineWidth={5}
-            shadowBlur={20}
-            shadowColor={"#ffff"}
+            fontSize={170}
+            fill={"rgba(206, 253, 255, 0.3)"}
+            lineWidth={7}
+            shadowBlur={50}
+            shadowColor={"#ffffffff"}
             stroke={
               new Gradient({
                 fromY: -50,
@@ -71,11 +75,11 @@ export class Logo extends Node {
           ref={this.jigyasu}
           fontFamily={"Poppins"}
           fontWeight={600}
-          fontSize={150}
-          fill={"#fff3"}
-          lineWidth={5}
-          shadowBlur={60}
-          shadowColor={"#ffff"}
+          fontSize={170}
+          fill={"rgba(206, 253, 255, 0.3)"}
+          lineWidth={7}
+          shadowBlur={50}
+          shadowColor={"#ffffffff"}
           opacity={0}
           scale={100}
           stroke={
@@ -121,21 +125,29 @@ export class Logo extends Node {
   }
 
   public *animate() {
-    yield* waitFor(0.5);
-
+    const vibration = 5;
+    // this.dot().opacity(1);
     yield* all(
-      this.i().position.y(100, 1, easeOutCubic).to(0, 0.6, easeOutElastic),
+      this.i().position.y(100, 0.4, easeOutCubic).to(0, 0.2, easeOutElastic),
       delay(
-        0.8,
+        0.3,
         all(
-          this.dot().position.y(-90, 0.3, easeInCubic),
-          delay(0.1, this.dot().opacity(1, 0.3, easeInCubic))
+          this.dot().position.y(-90, 0.3, easeOutBack),
+          this.dot().opacity(1, 0.2, easeInCubic)
         )
       )
     );
 
     yield* chain(
-      this.dot().size(10, 0.3, easeOutCubic).to(32, 0.2, easeInCubic),
+      all(
+        this.dot().size(10, 0.6, easeOutCubic),
+        loop(vibration, (i) =>
+          i < vibration - 1
+            ? this.dot().x(4, 0.02, easeOutCubic).to(-4, 0.02, easeOutCubic)
+            : this.dot().x(0, 0.01, easeOutCubic)
+        )
+      ),
+      this.dot().size(32, 0.2, easeInCubic),
       all(
         this.ripple().scale(250, 0.2, linear).to(999, 0.2, linear),
         this.dot().opacity(0, 0.01),
@@ -149,8 +161,8 @@ export class Logo extends Node {
     yield* waitFor(0.1);
 
     yield* all(
-      this.jigyasu().opacity(1, 0.6, easeOutCubic),
-      this.jigyasu().scale(1, 0.6, easeOutCubic)
+      this.jigyasu().opacity(1, 0.3, easeOutCubic),
+      this.jigyasu().scale(1.3, 0.3, easeOutCubic)
     );
   }
 

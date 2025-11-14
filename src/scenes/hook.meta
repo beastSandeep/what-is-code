@@ -2,21 +2,25 @@
   "version": 0,
   "timeEvents": [
     {
-      "name": "start",
-      "targetTime": 0.2578334158607224
+      "name": "torch",
+      "targetTime": 1.3574669524830294
     },
     {
-      "name": "pics",
-      "targetTime": 2.212009907464867
+      "name": "next",
+      "targetTime": 3.7824008574490877
+    },
+    {
+      "name": "computer",
+      "targetTime": 7.3454055019649855
     },
     {
       "name": "logo",
-      "targetTime": 5.811098867807846
+      "targetTime": 11.536598785280457
     },
     {
       "name": "title",
-      "targetTime": 11.734085679797078
+      "targetTime": 18.108999642729543
     }
   ],
-  "seed": 2118031063
+  "seed": 736248035
 }

@@ -4,13 +4,16 @@ import hook from "./scenes/hook?scene";
 import intro from "./scenes/intro?scene";
 import story from "./scenes/story?scene";
 
+import audio from "../src/audios/hook.wav";
+
 import "./global.css";
 
 export default makeProject({
   scenes: [
     // hook,
-    // intro,
+    intro,
     story,
   ],
+  // audio,
   experimentalFeatures: true,
 });

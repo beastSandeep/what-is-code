@@ -2,16 +2,16 @@
   "version": 0,
   "timeEvents": [
     {
-      "name": "graph",
-      "targetTime": 0.822347266881029
-    },
-    {
       "name": "icons",
-      "targetTime": 5.306520185780636
+      "targetTime": 2.289375500315245
     },
     {
-      "name": "next",
-      "targetTime": 12.783976420150054
+      "name": "brain",
+      "targetTime": 4.281747989207215
+    },
+    {
+      "name": "end",
+      "targetTime": 8.255330180413424
     }
   ],
   "seed": 2519653856

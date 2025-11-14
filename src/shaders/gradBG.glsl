@@ -53,8 +53,8 @@ void main() {
     pos.y += cos(pos.x * waveFreq + time) * waveAmp;
 
     // Create two gradient layers with a digital, neon-inspired palette
-    vec3 gradA = mix(vec3(0.02, 0.05, 0.1), vec3(0.1, 1.0, 0.1), SMOOTH(0.0, 1.0, pos.x + 0.5));  // Deep navy → Bright cyan-green
-    vec3 gradB = mix(vec3(0.1, 0.0, 0.2), vec3(0.1, 0.1, 0.3), SMOOTH(0.0, 1.0, pos.y + 0.5));  // Dark purple → Neon magenta-red
+    vec3 gradA = mix(vec3(0.7, 0.7, 0.7), vec3(0.1, 0.9, 0.9), SMOOTH(0.0, 1.0, pos.x + 0.5));  // Deep navy → Bright cyan-green
+    vec3 gradB = mix(vec3(1.0, 1.0, 1.0), vec3(0.1, 0.2, 0.3), SMOOTH(0.0, 1.0, pos.y + 0.5));  // Dark purple → Neon magenta-red
 
     // Blend the two layers using a factor derived from the distorted position
     float blend = SMOOTH(-0.2, 0.2, pos.x * pos.y);

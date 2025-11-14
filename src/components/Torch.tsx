@@ -1,4 +1,11 @@
-import { Node, NodeProps, Path, Rect, signal } from "@motion-canvas/2d";
+import {
+  Gradient,
+  Node,
+  NodeProps,
+  Path,
+  Rect,
+  signal,
+} from "@motion-canvas/2d";
 import {
   all,
   chain,
@@ -41,20 +48,20 @@ export class Torch extends Node {
           ref={this.button}
           radius={8}
           x={18}
-          y={-35}
-          fill={"red"}
+          y={-37}
+          fill={"#FF9800"}
           size={[30, 35]}
         ></Rect>
 
         {/* Handel */}
-        <Rect radius={8} fill={"white"} size={[180, 70]}></Rect>
+        <Rect radius={8} fill={"#7B4B3A"} size={[180, 70]}></Rect>
 
         {/* Head */}
         <Node x={105}>
-          <Rect radius={6} fill={"white"} size={[20, 70]}></Rect>
+          <Rect radius={5} fill={"#A1887F"} size={[20, 70]}></Rect>
 
           <Path
-            fill={"white"}
+            fill={"#CFD8DC"}
             x={16}
             scaleX={5}
             scaleY={8}
@@ -63,9 +70,11 @@ export class Torch extends Node {
 
           {/* Light */}
           <Path
+            shadowColor={"#fffbeeff"}
+            shadowBlur={100}
             ref={this.light}
             opacity={this.isOn ? 1 : 0}
-            fill={"yellow"}
+            fill={"#fffbeeff"}
             data={() =>
               `M150 120 L10000 ${this.beamSignal()} L10000 -${this.beamSignal()} L150 -120  Z`
             }
@@ -111,7 +120,7 @@ export class Torch extends Node {
   public *on(duration: number = this.perBlinkTime) {
     yield* all(
       this.light().opacity(1, duration),
-      this.button().position.y(-28, duration)
+      this.button().position.y(-30, duration)
     );
     this.isOn = !this.isOn;
   }

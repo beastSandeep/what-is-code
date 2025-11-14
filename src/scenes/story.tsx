@@ -18,6 +18,7 @@ import {
   Node,
   Spline,
   Line,
+  Circle,
 } from "@motion-canvas/2d";
 import Backround from "../components/GradientBackgroung";
 import boySvg from "../assets/img/boy.svg?raw";
@@ -33,11 +34,17 @@ import {
   createSignal,
   DEFAULT,
   easeInBack,
+  easeInBounce,
+  easeInCubic,
   easeInExpo,
+  easeInOutCubic,
   easeOutBack,
+  easeOutBounce,
+  easeOutCubic,
   linear,
   loop,
   range,
+  Vector2,
   waitFor,
   waitUntil,
 } from "@motion-canvas/core";
@@ -198,12 +205,22 @@ export default makeScene2D(function* (view) {
   yield* all(year().scale(0.3, 0.3), year().position([-800, -450], 0.5));
   yield* boy().reveal(0.3, 0.6);
 
-  yield* waitUntil("nothing");
+  // yield* waitUntil("nothing");
   yield* boy().x(-650, 0.3, easeOutBack);
-  yield* wifi().reveal(0.3, 0.6);
-  yield* all(wifi().x(600, 0.3, easeInExpo), wifi().y(-250, 0.3, easeInExpo));
-  yield* phone().reveal(0.3, 0.6);
-  yield* all(phone().x(600, 0.3, easeInExpo), phone().y(250, 0.3, easeInExpo));
+  yield* wifi().reveal(0.2, 0.3);
+  yield* wifi().position(
+    new Vector2(600, -250),
+    0.6,
+    easeOutCubic,
+    Vector2.arcLerp
+  );
+  yield* phone().reveal(0.2, 0.3);
+  yield* phone().position(
+    new Vector2(600, 250),
+    0.5,
+    easeOutCubic,
+    Vector2.arcLerp
+  );
   yield* all(cross().reveal(0.4, 0.8), cross2().reveal(0.4, 0.8));
 
   yield* waitUntil("boy");
@@ -211,7 +228,7 @@ export default makeScene2D(function* (view) {
   yield* boy2().reveal(0.3, 0.6);
   yield* boy2().x(650, 0.3, easeOutBack);
 
-  yield* waitUntil("road");
+  // yield* waitUntil("road");
   yield* all(
     leftRoadSpline().end(1, 0.8),
     centerRoadSpline().end(1, 0.8),

@@ -30,6 +30,7 @@ import {
   loop,
   makeRef,
   range,
+  sequence,
   waitUntil,
 } from "@motion-canvas/core";
 import Backround from "../components/GradientBackgroung";
@@ -46,6 +47,8 @@ import svg9 from "../assets/img/techIcons/9.svg";
 import svg10 from "../assets/img/techIcons/10.svg";
 import brain from "../assets/img/brain.svg?raw";
 import { SmartSVG } from "../components/SmartSVG";
+
+const svgs = [svg1, svg2, svg3, svg4, svg5, svg6, svg7, svg8, svg9, svg10];
 
 interface Point {
   x: number;
@@ -94,8 +97,6 @@ function getPointAtPercentage(
 
 export default makeScene2D(function* (view) {
   view.add(<Backround />);
-
-  yield* waitUntil("graph");
 
   const xAxis = createRef<Line>();
   const yAxis = createRef<Line>();
@@ -151,9 +152,9 @@ export default makeScene2D(function* (view) {
     </Layout>
   );
 
-  yield* all(xAxis().end(1, 1), yAxis().end(1, 1));
+  yield* all(xAxis().end(1, 0.5), yAxis().end(1, 0.5));
 
-  yield* all(grid().end(1, 1));
+  yield* all(grid().end(1, 0.5));
 
   const cellSize = 80;
   const points = [
@@ -212,137 +213,51 @@ export default makeScene2D(function* (view) {
 
   yield line().opacity(1, 0.1);
   yield* all(
-    line().end(1, 1.1, linear),
+    line().end(1, 0.6, linear),
     chain(
       ...dottedLines.map((dotLine) =>
-        all(dotLine.opacity(1, 0.11), dotLine.end(1, 0.11))
+        all(dotLine.opacity(1, 0.06), dotLine.end(1, 0.06))
       )
     )
   );
-
-  const svgRef1 = createRef<Img>();
-  const svgRef2 = createRef<Img>();
-  const svgRef3 = createRef<Img>();
-  const svgRef4 = createRef<Img>();
-  const svgRef5 = createRef<Img>();
-  const svgRef6 = createRef<Img>();
-  const svgRef7 = createRef<Img>();
-  const svgRef8 = createRef<Img>();
-  const svgRef9 = createRef<Img>();
-  const svgRef10 = createRef<Img>();
 
   const offset = 150;
   const percentageOffset = [
     0.03, 0.15, 0.23, 0.38, 0.45, 0.54, 0.65, 0.77, 0.8, 98,
   ];
-  const svgRefs = [
-    svgRef1,
-    svgRef2,
-    svgRef3,
-    svgRef4,
-    svgRef5,
-    svgRef6,
-    svgRef7,
-    svgRef8,
-    svgRef9,
-    svgRef10,
-  ];
+
+  const svgRefs: Img[] = [];
 
   view.add(
     <Layout>
-      <Img
-        ref={svgRef1}
-        src={svg1}
-        scale={0.5}
-        opacity={0}
-        position={() => getPointAtPercentage(points, 0.03, { y: -offset })}
-      />
-      <Img
-        ref={svgRef2}
-        src={svg2}
-        scale={0.5}
-        opacity={0}
-        position={() =>
-          getPointAtPercentage(points, 0.15, { y: offset, x: 20 })
-        }
-      />
-      <Img
-        ref={svgRef3}
-        src={svg3}
-        scale={0.5}
-        opacity={0}
-        position={() => getPointAtPercentage(points, 0.23, { y: -offset })}
-      />
-      <Img
-        ref={svgRef4}
-        src={svg4}
-        scale={0.5}
-        opacity={0}
-        position={() => getPointAtPercentage(points, 0.38, { y: offset })}
-      />
-      <Img
-        ref={svgRef5}
-        src={svg5}
-        scale={0.5}
-        opacity={0}
-        position={() =>
-          getPointAtPercentage(points, 0.45, { y: -offset, x: -40 })
-        }
-      />
-      <Img
-        ref={svgRef6}
-        src={svg6}
-        scale={0.5}
-        opacity={0}
-        position={() =>
-          getPointAtPercentage(points, 0.54, { y: offset, x: 20 })
-        }
-      />
-      <Img
-        ref={svgRef7}
-        src={svg7}
-        scale={0.5}
-        opacity={0}
-        position={() => getPointAtPercentage(points, 0.65, { y: -offset })}
-      />
-      <Img
-        ref={svgRef8}
-        src={svg8}
-        scale={0.5}
-        opacity={0}
-        position={() => getPointAtPercentage(points, 0.77, { y: offset })}
-      />
-      <Img
-        ref={svgRef9}
-        src={svg9}
-        scale={0.5}
-        opacity={0}
-        position={() => getPointAtPercentage(points, 0.8, { y: -offset })}
-      />
-      <Img
-        ref={svgRef10}
-        src={svg10}
-        scale={0.5}
-        opacity={0}
-        position={() => getPointAtPercentage(points, 0.98, { y: offset })}
-      />
+      {...svgs.map((svg, i) => (
+        <Img
+          ref={makeRef(svgRefs, i)}
+          src={svg}
+          scale={0.5}
+          // opacity={0}
+          position={() =>
+            getPointAtPercentage(points, percentageOffset[i], {
+              y: i % 2 === 0 ? -offset : offset,
+            })
+          }
+        />
+      ))}
     </Layout>
   );
 
   svgRefs.forEach((icon, i) => {
-    icon().save();
-    icon().position.y(getPointAtPercentage(points, percentageOffset[i]).y);
-    icon().scale(0);
+    icon.save();
+    icon.position.y(getPointAtPercentage(points, percentageOffset[i]).y);
+    icon.scale(0);
   });
 
   yield* waitUntil("icons");
 
-  yield* chain(
+  yield sequence(
+    0.1,
     ...svgRefs.flatMap((icon) =>
-      all(
-        icon().restore(0.2, easeOutCubic),
-        icon().opacity(1, 0.2, easeOutCubic)
-      )
+      all(icon.restore(0.4, easeOutCubic), icon.opacity(1, 0.4, easeOutCubic))
     )
   );
 
@@ -355,19 +270,19 @@ export default makeScene2D(function* (view) {
       filters={[invert(1), hue(100)]}
       scale={0.3}
       svg={brain}
-      y={300}
+      y={0}
       x={840}
     />
   );
 
-  yield* brainRef().reveal();
-
-  const task = yield loop(() =>
+  yield* waitUntil("brain");
+  const logoMove = yield loop(() =>
     chain(brainRef().y(-100, 1, easeInOutCubic).to(100, 1, easeInOutCubic))
   );
+  yield* brainRef().reveal(0.3, 0.4);
 
-  yield* waitUntil("next");
-  cancel(task);
+  yield* waitUntil("end");
+  cancel(logoMove);
 
   yield* all(
     brainRef().hide(1),
@@ -376,7 +291,7 @@ export default makeScene2D(function* (view) {
     ...dottedLines
       .reverse()
       .map((dotLine) => all(dotLine.start(1, 0.1), dotLine.opacity(0, 0.3))),
-    ...svgRefs.reverse().map((sv) => sv().scale(0, 0.3)),
+    ...svgRefs.reverse().map((sv) => sv.scale(0, 0.3)),
     line().start(1, 0.5),
     line().opacity(0, 0.5),
     grid().end(0, 0.5),

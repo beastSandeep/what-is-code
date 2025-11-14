@@ -1,4 +1,4 @@
-import { hue, Path, SVG, Node, NodeProps } from "@motion-canvas/2d";
+import { Path, SVG, Node, NodeProps } from "@motion-canvas/2d";
 import {
   all,
   createRef,

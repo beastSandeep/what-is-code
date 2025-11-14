@@ -3,19 +3,11 @@
   "timeEvents": [
     {
       "name": "story",
-      "targetTime": 0.46184351554126474
-    },
-    {
-      "name": "nothing",
-      "targetTime": 3.0679885673454743
+      "targetTime": 1.1630428047427972
     },
     {
       "name": "boy",
-      "targetTime": 7.724115755627002
-    },
-    {
-      "name": "road",
-      "targetTime": 10.139371204001423
+      "targetTime": 7.34348238759463
     }
   ],
   "seed": 3683513250

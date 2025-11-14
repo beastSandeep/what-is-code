@@ -2,7 +2,7 @@
 node_modules
 output
 dist
-
+src/audios
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

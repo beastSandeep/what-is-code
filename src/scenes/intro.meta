@@ -3,15 +3,19 @@
   "timeEvents": [
     {
       "name": "icons",
-      "targetTime": 2.289375500315245
+      "targetTime": 5.187040266851045
     },
     {
       "name": "brain",
-      "targetTime": 4.281747989207215
+      "targetTime": 8.235464796428799
     },
     {
       "name": "end",
-      "targetTime": 8.255330180413424
+      "targetTime": 13.440827517790922
+    },
+    {
+      "name": "endVid",
+      "targetTime": 18.86924058730006
     }
   ],
   "seed": 2519653856

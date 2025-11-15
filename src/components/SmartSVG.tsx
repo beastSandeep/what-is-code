@@ -3,12 +3,14 @@ import {
   all,
   createRef,
   easeInOutCubic,
+  PossibleVector2,
   SignalValue,
 } from "@motion-canvas/core";
 
 export interface SmartSVGProps extends NodeProps {
   svg: SignalValue<string>;
   lineWidth?: SignalValue<number>;
+  offset?: SignalValue<PossibleVector2>;
 }
 
 export class SmartSVG extends Node {
@@ -17,8 +19,9 @@ export class SmartSVG extends Node {
 
   public constructor(props?: SmartSVGProps) {
     super({ ...props });
-
-    this.add(<SVG cache ref={this.svgRef} svg={props.svg} />);
+    this.add(
+      <SVG offset={props.offset} cache ref={this.svgRef} svg={props.svg} />
+    );
     this.paths = this.svgRef().wrapper.children() as Path[];
 
     for (const path of this.paths) {

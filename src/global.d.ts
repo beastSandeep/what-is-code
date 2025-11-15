@@ -74,3 +74,10 @@ declare module "*.json" {
   const value: any;
   export default value;
 }
+// -----------------------------
+// Video
+// -----------------------------
+declare module "*.mp4" {
+  const value: string;
+  export default value;
+}

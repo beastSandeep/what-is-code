@@ -18,6 +18,7 @@ import {
   Layout,
   Line,
   makeScene2D,
+  Video,
 } from "@motion-canvas/2d";
 import {
   all,
@@ -25,15 +26,19 @@ import {
   chain,
   createRef,
   easeInOutCubic,
+  easeOutBack,
   easeOutCubic,
   linear,
   loop,
   makeRef,
   range,
   sequence,
+  useScene,
+  waitFor,
   waitUntil,
 } from "@motion-canvas/core";
 import Backround from "../components/GradientBackgroung";
+import { SmartSVG } from "../components/SmartSVG";
 
 import svg1 from "../assets/img/techIcons/svg1.svg";
 import svg2 from "../assets/img/techIcons/2.svg";
@@ -46,7 +51,11 @@ import svg8 from "../assets/img/techIcons/8.svg";
 import svg9 from "../assets/img/techIcons/9.svg";
 import svg10 from "../assets/img/techIcons/10.svg";
 import brain from "../assets/img/brain.svg?raw";
-import { SmartSVG } from "../components/SmartSVG";
+import stress from "../assets/img/stress.svg";
+import burden from "../assets/img/burden_converted.svg";
+import ratRace from "../assets/img/ratRace.jpg";
+import forget from "../assets/img/forgot.svg";
+import innovation from "../assets/vid/innovation.mp4";
 
 const svgs = [svg1, svg2, svg3, svg4, svg5, svg6, svg7, svg8, svg9, svg10];
 
@@ -97,6 +106,8 @@ function getPointAtPercentage(
 
 export default makeScene2D(function* (view) {
   view.add(<Backround />);
+
+  const isFinal = useScene().variables.get("isFinal", true)();
 
   const xAxis = createRef<Line>();
   const yAxis = createRef<Line>();
@@ -152,9 +163,9 @@ export default makeScene2D(function* (view) {
     </Layout>
   );
 
-  yield* all(xAxis().end(1, 0.5), yAxis().end(1, 0.5));
+  yield* all(xAxis().end(1, 0.8), yAxis().end(1, 0.8));
 
-  yield* all(grid().end(1, 0.5));
+  yield* all(grid().end(1, 0.8));
 
   const cellSize = 80;
   const points = [
@@ -213,7 +224,7 @@ export default makeScene2D(function* (view) {
 
   yield line().opacity(1, 0.1);
   yield* all(
-    line().end(1, 0.6, linear),
+    line().end(1, 1, linear),
     chain(
       ...dottedLines.map((dotLine) =>
         all(dotLine.opacity(1, 0.06), dotLine.end(1, 0.06))
@@ -276,29 +287,99 @@ export default makeScene2D(function* (view) {
   );
 
   yield* waitUntil("brain");
-  const logoMove = yield loop(() =>
-    chain(brainRef().y(-100, 1, easeInOutCubic).to(100, 1, easeInOutCubic))
+  const brainMove = yield loop(() =>
+    brainRef().y(-100, 1, easeInOutCubic).to(100, 1, easeInOutCubic)
   );
-  yield* brainRef().reveal(0.3, 0.4);
+  yield* brainRef().reveal(0.6, 0.8);
 
   yield* waitUntil("end");
-  cancel(logoMove);
 
-  yield* all(
-    brainRef().hide(1),
-    brainRef().opacity(0, 0.5),
+  cancel(brainMove);
 
+  yield all(
     ...dottedLines
       .reverse()
-      .map((dotLine) => all(dotLine.start(1, 0.1), dotLine.opacity(0, 0.3))),
-    ...svgRefs.reverse().map((sv) => sv.scale(0, 0.3)),
-    line().start(1, 0.5),
-    line().opacity(0, 0.5),
-    grid().end(0, 0.5),
-    grid().opacity(0, 0.5),
-    xAxis().start(1, 0.5),
-    xAxis().opacity(0, 0.5),
-    yAxis().start(1, 0.5),
-    yAxis().opacity(0, 0.5)
+      .map((dotLine) => all(dotLine.start(1, 0.5), dotLine.opacity(0, 0.3))),
+    ...svgRefs.reverse().map((sv) => sv.scale(0, 0.8))
   );
+
+  yield* all(
+    brainRef().hide(1.2),
+    brainRef().opacity(0, 1.2),
+
+    line().start(1, 1.2),
+    line().opacity(0, 1.2),
+    grid().end(0, 1.2),
+    grid().opacity(0, 1.2),
+    xAxis().start(1, 1.2),
+    xAxis().opacity(0, 1.2),
+    yAxis().start(1, 1.2),
+    yAxis().opacity(0, 1.2)
+  );
+
+  // yield*
+
+  const vid = createRef<Video>();
+
+  view.add(
+    <Video
+      ref={vid}
+      scale={0}
+      size={"85%"}
+      radius={50}
+      src={innovation}
+      shadowBlur={100}
+      stroke={"#003be1"}
+      lineWidth={10}
+      lineDashOffset={0}
+      shadowColor={"#003be1"}
+    />
+  );
+
+  yield vid().scale(1, 0.8);
+
+  if (isFinal) {
+    vid().play();
+  }
+
+  yield* waitUntil("endVid");
+  yield all(vid().scale(0, 0.4), vid().opacity(0, 0.4));
+  vid().pause();
+
+  const imgs: Img[] = [];
+
+  view.add(
+    <>
+      <Img ref={makeRef(imgs, 0)} x={2000} scale={4} radius={50} src={stress} />
+      <Img ref={makeRef(imgs, 1)} x={2000} scale={6} radius={50} src={burden} />
+      <Img
+        ref={makeRef(imgs, 2)}
+        y={2000}
+        x={-350}
+        size={"50%"}
+        radius={50}
+        src={ratRace}
+      />
+      <Img
+        ref={makeRef(imgs, 3)}
+        y={2000}
+        x={550}
+        scale={5}
+        radius={50}
+        src={forget}
+      />
+    </>
+  );
+
+  yield* imgs[0].x(-450, 1.5, easeInOutCubic);
+  yield* waitFor(1.5);
+  yield* imgs[1].x(400, 1.5, easeInOutCubic);
+  yield* waitFor(1);
+
+  yield all(imgs[0].y(-2000, 0.5), imgs[1].y(-2000, 0.5));
+  yield* imgs[2].y(0, 0.8, easeInOutCubic);
+  yield* waitFor(2);
+  yield* imgs[3].y(0, 0.8, easeInOutCubic);
+  yield* waitFor(2);
+  yield* all(imgs[2].y(-2000, 1), imgs[3].y(-2000, 1));
 });

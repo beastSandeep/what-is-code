@@ -2,9 +2,11 @@ import { Img, makeScene2D, Node, Rect, Txt } from "@motion-canvas/2d";
 import {
   all,
   cancel,
+  chain,
   createRef,
   DEFAULT,
   delay,
+  easeInBack,
   easeInCubic,
   easeInExpo,
   easeInOutExpo,
@@ -15,6 +17,7 @@ import {
   easeOutExpo,
   loop,
   makeRef,
+  sequence,
   spawn,
   useRandom,
   Vector2,
@@ -29,6 +32,8 @@ import talk3 from "../assets/img/talk/talk3.svg";
 import talk4 from "../assets/img/talk/talk4.svg";
 import computer from "../assets/img/computer.jpg";
 import { Logo } from "../components/Logo";
+import oldAge from "../assets/img/oldAge.svg";
+import barePC from "../assets/img/barePC.jpg";
 
 export default makeScene2D(function* (view) {
   view.add(<Backround />);
@@ -250,6 +255,19 @@ export default makeScene2D(function* (view) {
     </Node>
   );
 
+  yield* all(
+    img1().position([-230, -210], 0.6, easeOutCubic, Vector2.arcLerp),
+    img1().opacity(1, 0.6),
+
+    img2().position([300, -230], 0.6, easeOutCubic, Vector2.arcLerp),
+    img2().opacity(1, 0.6),
+
+    img3().position([240, 210], 0.6, easeOutCubic, Vector2.arcLerp),
+    img3().opacity(1, 0.6),
+
+    img4().position([-250, 250], 0.6, easeOutCubic, Vector2.arcLerp),
+    img4().opacity(1, 0.6)
+  );
   const rotationTask = yield loop(() =>
     all(
       img1().rotation(3, 0.2, easeInOutSine).to(-3, 0.2, easeInOutSine),
@@ -258,21 +276,6 @@ export default makeScene2D(function* (view) {
       img4().rotation(3, 0.2, easeInOutSine).to(-3, 0.2, easeInOutSine)
     )
   );
-
-  yield* all(
-    img1().position([-230, -210], 0.6, easeOutExpo, Vector2.arcLerp),
-    img1().opacity(1, 0.6),
-
-    img2().position([300, -230], 0.6, easeOutExpo, Vector2.arcLerp),
-    img2().opacity(1, 0.6),
-
-    img3().position([240, 210], 0.6, easeOutExpo, Vector2.arcLerp),
-    img3().opacity(1, 0.6),
-
-    img4().position([-250, 250], 0.6, easeOutExpo, Vector2.arcLerp),
-    img4().opacity(1, 0.6)
-  );
-
   yield* waitUntil("computer");
   //
   cancel(rotationTask);
@@ -326,8 +329,9 @@ export default makeScene2D(function* (view) {
   view.add(<Logo ref={logo} />);
   yield* logo().animate();
 
-  yield* waitFor(0.5);
+  yield* waitUntil("title");
   yield* logo().unanimate();
+
   const title = createRef<Rect>();
   const letters = "What is Code.".split("");
   const lettersRef: Txt[] = [];
@@ -352,18 +356,40 @@ export default makeScene2D(function* (view) {
     </Txt>
   );
 
-  // yield* title().scale(1, 0.5, easeOutCubic);
-  // for (let index in lettersRef) {
-  //   const indivisuaLetterRef = lettersRef[index];
-  //   indivisuaLetterRef.position.x(-20 * index * 1);
-  // }
-
   yield* all(
     title().letterSpacing(DEFAULT, 0.3, easeOutBack),
     ...lettersRef.map((letterRef) => letterRef.opacity(1, 0.3))
   );
 
-  yield* waitUntil("title");
-
+  yield* waitFor(1);
   yield* title().scale(0, 0.4, easeInCubic);
+
+  const imgs: Img[] = [];
+
+  view.add(
+    <>
+      <Img
+        ref={makeRef(imgs, 0)}
+        x={2000}
+        size={"80%"}
+        radius={50}
+        src={oldAge}
+      />
+      <Img
+        ref={makeRef(imgs, 1)}
+        x={2000}
+        size={"80%"}
+        radius={50}
+        src={barePC}
+      />
+    </>
+  );
+
+  yield* imgs[0].x(0, 1, easeOutBack);
+  yield* waitFor(0.8);
+  yield imgs[0].x(-2000, 0.4);
+
+  yield* imgs[1].x(0, 1, easeOutBack);
+  yield* waitFor(0.8);
+  yield* imgs[1].x(-2000, 0.6);
 });

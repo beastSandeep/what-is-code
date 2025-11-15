@@ -3,11 +3,27 @@
   "timeEvents": [
     {
       "name": "story",
-      "targetTime": 1.1630428047427972
+      "targetTime": 6.587311577548434
     },
     {
-      "name": "boy",
-      "targetTime": 7.34348238759463
+      "name": "70%",
+      "targetTime": 40.264557155719835
+    },
+    {
+      "name": "speaker",
+      "targetTime": 50.136298606579295
+    },
+    {
+      "name": "spy",
+      "targetTime": 60.833009211357954
+    },
+    {
+      "name": "slap",
+      "targetTime": 67.49960440454359
+    },
+    {
+      "name": "end",
+      "targetTime": 75.88603059613288
     }
   ],
   "seed": 3683513250

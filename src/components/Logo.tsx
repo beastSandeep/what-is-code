@@ -61,8 +61,8 @@ export class Logo extends Node {
                 toY: 50,
                 stops: [
                   { offset: 0, color: "#fff5" },
-                  { offset: 0.2, color: "#fffa" },
-                  { offset: 0.8, color: "#fffa" },
+                  { offset: 0.2, color: "#fffe" },
+                  { offset: 0.8, color: "#fffe" },
                   { offset: 1.0, color: "#fff5" },
                 ],
               })

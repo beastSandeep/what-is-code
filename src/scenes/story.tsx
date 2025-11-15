@@ -19,6 +19,13 @@ import {
   Spline,
   Line,
   Circle,
+  Video,
+  Rect,
+  Gradient,
+  SVG,
+  Img,
+  TxtProps,
+  colorSignal,
 } from "@motion-canvas/2d";
 import Backround from "../components/GradientBackgroung";
 import boySvg from "../assets/img/boy.svg?raw";
@@ -26,44 +33,138 @@ import boySvg2 from "../assets/img/boy.svg?raw";
 import wifiSvg from "../assets/img/wifi.svg?raw";
 import phoneSvg from "../assets/img/phone.svg?raw";
 import crossSvg from "../assets/img/cross.svg?raw";
+import calling from "../assets/vid/callers.mp4";
+import action1 from "../assets/img/twoChild/2151495149.jpg";
+import action2 from "../assets/img/twoChild/2151495154.jpg";
+import action3 from "../assets/img/twoChild/2151495158.jpg";
+import action4 from "../assets/img/twoChild/2151495178.jpg";
+import megaphone from "../assets/img/megaphone.svg";
+import spy from "../assets/vid/spy.mp4";
+import slap from "../assets/vid/slap.mp4";
 
 import {
   all,
   cancel,
+  chain,
+  Color,
   createRef,
   createSignal,
   DEFAULT,
+  delay,
   easeInBack,
-  easeInBounce,
   easeInCubic,
-  easeInExpo,
   easeInOutCubic,
+  easeInOutSine,
   easeOutBack,
-  easeOutBounce,
   easeOutCubic,
   linear,
   loop,
+  makeRef,
   range,
+  spawn,
+  useRandom,
+  useScene,
   Vector2,
   waitFor,
   waitUntil,
 } from "@motion-canvas/core";
+
 import { SmartSVG } from "../components/SmartSVG";
 
 export default makeScene2D(function* (view) {
   const hueSignal = createSignal(0);
+  const isFinal = useScene().variables.get("isFinal", true)();
 
   view.add(<Backround filters={[hue(() => hueSignal())]} />);
 
-  yield* waitUntil("story");
+  const baseWords = [
+    "!",
+    ";",
+    "true",
+    "false",
+    "[]",
+    "{}",
+    "()",
+    "+",
+    "-",
+    "*",
+    "/",
+    "~",
+    ">>",
+    "<<",
+    "&",
+    "|",
+    ":",
+    ".",
+    "^",
+    "%",
+    "&&",
+    "||",
+    "<",
+    ">",
+    "?",
+    "'",
+    '"',
+  ];
 
+  const words = Array(3).fill(baseWords).flat();
+
+  const wordsRef: Txt[] = [];
+  const randomGen = useRandom();
+  const safeWidth = view.width() / 2;
+  const safeHeigh = view.height() / 2;
+
+  view.add(
+    <>
+      {words.map((word, i) => (
+        <Txt
+          ref={makeRef(wordsRef, i)}
+          fontSize={40}
+          fontWeight={700}
+          shadowColor={"#ffffff80"}
+          shadowBlur={10}
+          fontFamily={"Poppins"}
+          x={randomGen.nextInt(-safeWidth, safeWidth)}
+          y={randomGen.nextInt(-safeHeigh, safeHeigh)}
+          opacity={0}
+          fill={"gray"}
+          text={word}
+        />
+      ))}
+    </>
+  );
+
+  const floatingCode = yield loop(() =>
+    spawn(
+      all(
+        ...wordsRef.map((wordRef) => {
+          const [cx, cy] = wordRef.position();
+          const nx = cx + randomGen.nextInt(-50, 50); // small offset
+          const ny = cy + randomGen.nextInt(-50, 50);
+
+          return all(
+            wordRef.position([nx, ny], 4, easeInOutSine),
+            wordRef.opacity(0.2, 0.3, easeInCubic)
+          ); // longer duration
+        })
+      )
+    )
+  );
+
+  yield* waitUntil("story");
+  // remove code
   yield hueSignal(100, 1);
+  if (!isFinal) {
+    cancel(floatingCode);
+  }
 
   const year = createRef<Txt>();
   const year_number = createRef<Txt>();
   const year_astrick = createRef<Txt>();
   const boy = createRef<SmartSVG>();
+  const raju = createRef<Txt>();
   const boy2 = createRef<SmartSVG>();
+  const shyam = createRef<Txt>();
   const wifi = createRef<SmartSVG>();
   const phone = createRef<SmartSVG>();
   const cross = createRef<SmartSVG>();
@@ -71,6 +172,14 @@ export default makeScene2D(function* (view) {
   const leftRoadSpline = createRef<Spline>();
   const centerRoadSpline = createRef<Spline>();
   const rightRoadSpline = createRef<Spline>();
+
+  const nameprops: TxtProps = {
+    fill: "white",
+    fontFamily: "Poppins",
+    fontWeight: 700,
+    fontSize: 100,
+    y: 600,
+  };
 
   view.add(
     <>
@@ -96,8 +205,12 @@ export default makeScene2D(function* (view) {
           fontWeight={700}
         />
       </Node>
+
       <SmartSVG ref={boy} scale={0.5} svg={boySvg} />
+      <Txt ref={raju} {...nameprops} text={"Raju"} alignSelf={"end"} x={-650} />
+
       <SmartSVG ref={boy2} filters={[hue(-30)]} scale={0.5} svg={boySvg2} />
+      <Txt ref={shyam} {...nameprops} text={"Shyam"} x={650} />
 
       <Spline
         ref={leftRoadSpline}
@@ -167,6 +280,8 @@ export default makeScene2D(function* (view) {
         lineWidth={1}
         filters={[invert(1)]}
         scale={0.5}
+        // offset={[-1, -1]}
+
         svg={phoneSvg}
       />
 
@@ -197,11 +312,11 @@ export default makeScene2D(function* (view) {
   year().y(100);
 
   yield* year().restore(0.5);
-  const task = yield loop(() =>
+  const startRotation = yield loop(() =>
     year_astrick().rotation(0).rotation(360, 2, linear)
   );
   // wait
-  yield* waitFor(0.4);
+  yield* waitFor(2);
   yield* all(year().scale(0.3, 0.3), year().position([-800, -450], 0.5));
   yield* boy().reveal(0.3, 0.6);
 
@@ -217,24 +332,231 @@ export default makeScene2D(function* (view) {
   yield* phone().reveal(0.2, 0.3);
   yield* phone().position(
     new Vector2(600, 250),
-    0.5,
+    0.2,
     easeOutCubic,
     Vector2.arcLerp
   );
   yield* all(cross().reveal(0.4, 0.8), cross2().reveal(0.4, 0.8));
 
-  yield* waitUntil("boy");
   yield* wifiAndPhone.x(600, 0.5, easeInBack);
   yield* boy2().reveal(0.3, 0.6);
   yield* boy2().x(650, 0.3, easeOutBack);
 
+  yield* shyam().y(300, 0.5);
+  yield* waitFor(1);
+  yield* raju().y(300, 0.5);
+  yield* waitFor(1);
   // yield* waitUntil("road");
   yield* all(
-    leftRoadSpline().end(1, 0.8),
-    centerRoadSpline().end(1, 0.8),
-    rightRoadSpline().end(1, 0.8)
+    leftRoadSpline().end(1, 1.5),
+    centerRoadSpline().end(1, 1.5),
+    rightRoadSpline().end(1, 1.5)
   );
 
-  yield* hueSignal(DEFAULT, 1);
-  cancel(task);
+  yield* waitFor(1);
+  // here play
+  function myMap(
+    fromMin: number,
+    fromMax: number,
+    toMin: number,
+    toMax: number,
+    value: number
+  ): number {
+    return toMin + ((value - fromMin) / (fromMax - fromMin)) * (toMax - toMin);
+  }
+
+  const actions = [action4, action2, action3, action1];
+  const xOffset = 270;
+  const yOffset = 270;
+  const cols = 12 * 2;
+  const rows = 6 * 2;
+
+  const dotsRect = createRef<Rect>();
+  const cross3 = createRef<SVG>();
+  const childrenimgs: Img[] = [];
+
+  view.add(
+    <>
+      <Rect
+        ref={dotsRect}
+        scale={0}
+        opacity={0}
+        cache
+        height={() => view.height()}
+        fill={"#ddd"}
+        width={() => view.width()}
+      >
+        {range(rows).flatMap((row) =>
+          range(cols).map((col) => (
+            <Circle
+              cache
+              size={10}
+              opacity={0.9}
+              fill={"#ddd"}
+              // X spans full width
+              x={() =>
+                myMap(0, cols - 1, -view.width() / 2, view.width() / 2, col)
+              }
+              // Y spans full height
+              y={() =>
+                myMap(0, rows - 1, -view.height() / 2, view.height() / 2, row)
+              }
+            />
+          ))
+        )}
+      </Rect>
+
+      {...actions.map((child, i) => (
+        <Img
+          ref={makeRef(childrenimgs, i)}
+          scale={0}
+          radius={200}
+          x={() => (i <= 1 ? xOffset : -xOffset)}
+          y={() => (i % 2 === 0 ? yOffset : -yOffset)}
+          src={child}
+        />
+      ))}
+
+      <SVG scale={0} ref={cross3} svg={crossSvg} />
+    </>
+  );
+  yield* all(dotsRect().scale(1, 0.8), dotsRect().opacity(1, 0.5));
+
+  const childrenRoationTask = yield loop(() =>
+    all(
+      ...childrenimgs.map((child, i) =>
+        child.rotation(-2 - i * 0.6, 0.8).to(2 + i * 0.6, 0.8)
+      )
+    )
+  );
+
+  yield* childrenimgs[3].scale(0.25, 1);
+  yield* childrenimgs[1].scale(0.25, 1);
+  yield* childrenimgs[0].scale(0.25, 1);
+  yield* childrenimgs[2].scale(0.25, 1);
+
+  yield* waitFor(5);
+
+  yield* dotsRect().fill("black", 1);
+
+  //
+  yield* waitFor(1.5);
+
+  cancel(childrenRoationTask);
+  yield* cross3().scale(1.3, 1, easeOutBack);
+
+  const vid = createRef<Video>();
+  view.add(
+    <Video
+      ref={vid}
+      width={"100%"}
+      scale={0}
+      height={"100%"}
+      radius={50}
+      src={calling}
+      stroke={"#b4dbf1"}
+      shadowBlur={200}
+      lineWidth={30}
+      shadowColor={"#b4dbf1"}
+    />
+  );
+
+  yield* waitUntil("70%");
+
+  yield* all(
+    cross3().scale(0, 0.4),
+    ...childrenimgs.map((child) => child.scale(0, 0.4))
+  );
+
+  yield vid().scale(0.8, 0.5);
+
+  if (isFinal) {
+    vid().play();
+  }
+
+  yield all(vid().lineDashOffset(-1500, 4, linear));
+
+  yield* waitUntil("speaker");
+  yield all(
+    vid().scale(0, 0.4),
+    vid().opacity(0, 0.4),
+    dotsRect().opacity(0, 0.2),
+    dotsRect().scale(0, 0.4)
+  );
+  vid().pause();
+
+  const speaker = createRef<Img>();
+
+  view.add(
+    <Img
+      ref={speaker}
+      src={megaphone}
+      scale={0.25}
+      filters={[invert(1)]}
+      x={-380}
+      y={30}
+    />
+  );
+
+  speaker().save();
+
+  speaker().opacity(0);
+  speaker().position.y(100);
+  speaker().scale(0);
+
+  yield* speaker().restore(0.6);
+
+  const speakerRotationTask = yield loop(Infinity, () =>
+    speaker().rotation(-5, 0.3, easeInOutCubic).to(5, 0.3, easeInOutCubic)
+  );
+
+  yield* waitUntil("spy");
+  cancel(speakerRotationTask);
+  yield speaker().rotation(0, 0.3);
+
+  const spyVid = createRef<Video>();
+
+  view.add(<Video ref={spyVid} radius={10} loop scale={3} src={spy} />);
+  if (isFinal) {
+    spyVid().play();
+  }
+
+  yield* waitUntil("slap");
+  spyVid().pause();
+  yield spyVid().scale(0, 0.4);
+
+  const slapVid = createRef<Video>();
+  view.add(<Video ref={slapVid} radius={10} loop scale={2} src={slap} />);
+  if (isFinal) {
+    slapVid().play();
+  }
+
+  yield* waitUntil("end");
+  spyVid().pause();
+
+  slapVid().play();
+  yield slapVid().scale(0, 0.4);
+  yield spyVid().scale(0, 0.4);
+
+  yield all(
+    all(
+      leftRoadSpline().start(1, 0.4),
+      rightRoadSpline().start(1, 0.4),
+      centerRoadSpline().start(1, 0.4),
+      speaker().scale(0, 0.4),
+      year().scale(0, 0.4)
+    ),
+    all(raju().x(-1500, 0.4), boy().x(-1500, 0.4)),
+    all(shyam().x(1500, 0.4), boy2().x(1500, 0.4)),
+    all(
+      ...wordsRef.map((wordRef) =>
+        all(
+          wordRef.x(randomGen.nextInt(-5000, 5000), 0.4),
+          wordRef.y(randomGen.nextInt(-5000, 5000), 0.4)
+        )
+      )
+    )
+  );
+  yield* hueSignal(DEFAULT, 0.4);
+  cancel(startRotation);
 });

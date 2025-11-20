@@ -13,7 +13,7 @@
     "@motion-canvas/ffmpeg": "^1.1.0"
   },
   "devDependencies": {
-    "@iconify-json/material-symbols": "^1.2.44",
+    "@iconify-json/material-symbols": "^1.2.46",
     "@iconify-json/uit": "^1.2.3",
     "@motion-canvas/ui": "^3.17.2",
     "@motion-canvas/vite-plugin": "^3.17.2",

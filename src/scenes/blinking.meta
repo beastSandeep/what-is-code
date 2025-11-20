@@ -1,0 +1,34 @@
+{
+  "version": 0,
+  "timeEvents": [
+    {
+      "name": "idea",
+      "targetTime": 5.832330580272886
+    },
+    {
+      "name": "flashlight",
+      "targetTime": 7.540360533509164
+    },
+    {
+      "name": "U",
+      "targetTime": 35.301613191311674
+    },
+    {
+      "name": "switch",
+      "targetTime": 46.146758781797686
+    },
+    {
+      "name": "blink",
+      "targetTime": 72.52783817079738
+    },
+    {
+      "name": "manyBlink",
+      "targetTime": 85.4400589230154
+    },
+    {
+      "name": "end",
+      "targetTime": 374.96654140968235
+    }
+  ],
+  "seed": 155264616
+}

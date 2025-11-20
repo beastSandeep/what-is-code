@@ -151,12 +151,58 @@ export default makeScene2D(function* (view) {
     )
   );
 
+  const code = createRef<Layout>();
+
+  view.add(
+    <Layout ref={code} layout direction={"column"} alignItems={"center"} y={70}>
+      <Txt
+        fontSize={250}
+        fill={"white"}
+        fontWeight={800}
+        fontFamily={"Poppins"}
+        text={"< Code >"}
+        lineHeight={170}
+        shadowBlur={60}
+        shadowColor={"white"}
+      />
+      <Txt
+        fontSize={50}
+        fill={"#fff2b2ff"}
+        fontWeight={600}
+        fontFamily={"Jetbrains Mono"}
+        text={"01000011 01101111 01100100 01100101"}
+        lineHeight={170}
+        shadowBlur={30}
+        shadowColor={"#fff2b2ff"}
+      />
+
+      <Txt
+        fontSize={70}
+        fill={"#fff2b2ff"}
+        fontWeight={600}
+        fontFamily={"Jetbrains Mono"}
+        text={"_._. ___ _.. ."}
+        lineHeight={0}
+        shadowBlur={30}
+        shadowColor={"#fff2b2ff"}
+      />
+    </Layout>
+  );
+  code().save();
+  code().y(150);
+  code().opacity(0.2);
+  code().scale(0.2);
+
+  yield* code().restore(0.5);
+  yield all(code().y(0, 6), code().scale(0.9, 6));
+
   yield* waitUntil("story");
   // remove code
   yield hueSignal(100, 1);
   if (!isFinal) {
     cancel(floatingCode);
   }
+  yield* code().scale(0, 0.6);
 
   const year = createRef<Txt>();
   const year_number = createRef<Txt>();

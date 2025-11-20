@@ -317,7 +317,7 @@ export default makeScene2D(function* (view) {
   const comp = createRef<Img>();
   view.add(<Img ref={comp} src={computer} scale={0.02} />);
   comp().save();
-  yield* comp().scale(0.36, 0.3, easeInExpo);
+  yield* comp().scale(0.36, 0.5, easeInCubic);
   cancel(floatingWords);
   for (const wordRef of wordsRef) {
     yield wordRef.remove();

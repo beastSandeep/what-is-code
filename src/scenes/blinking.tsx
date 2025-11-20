@@ -30,9 +30,11 @@ import {
   easeOutExpo,
   linear,
   loop,
+  LoopCallback,
   makeRef,
   range,
   Reference,
+  ThreadGenerator,
   useScene,
   waitFor,
   waitUntil,
@@ -431,8 +433,12 @@ export default makeScene2D(function* (view) {
 
   yield* blinkingCons(view);
 
+  yield* twoTypesBlinking(view);
+
   yield* waitUntil("end");
 });
+
+function* twoTypesBlinking(view: View2D) {}
 
 function* blinkingCons(view: View2D) {
   const t = createRef<Torch>();
@@ -441,14 +447,16 @@ function* blinkingCons(view: View2D) {
   const equalsTo = createRef<Txt>();
   const total = createRef<Txt>();
   const word = createRef<Txt>();
+  const lastLine = createRef<Line>();
   const lines: Line[] = [];
   const lines2: Line[] = [];
   const texts: Txt[] = [];
   const texts2: Txt[] = [];
+  const redCircle = createRef<Rect>();
 
-  function* makeBlink(t: Reference<Torch>) {
-    yield* t().on(0.2);
-    yield* t().off(0.1);
+  function* makeBlink(t: Reference<Torch>, speed: number = 1) {
+    yield* t().on(0.2 / speed);
+    yield* t().off(0.1 / speed);
   }
 
   const lettersProps: TxtProps = {
@@ -696,18 +704,21 @@ function* blinkingCons(view: View2D) {
 
         <Line
           {...lineProps}
-          ref={makeRef(lines2, 9)}
+          ref={lastLine}
           points={[
             [470, -350],
             [470, -220],
           ]}
         />
         <Rect
+          ref={redCircle}
+          opacity={0}
           stroke={"red"}
+          lineCap={"round"}
           lineWidth={8}
           shadowBlur={10}
           shadowColor={"red"}
-          lineDash={[8, 10]}
+          lineDash={[5, 20]}
           radius={50}
           width={100}
           height={100}
@@ -733,25 +744,60 @@ function* blinkingCons(view: View2D) {
 
   yield* waitUntil("manyBlink");
   yield* all(text().opacity(0, 0.2), word().text("BAD", 1));
-  lines.map((line) => line.opacity(1));
+  lines.forEach((line) => line.opacity(1));
   yield* all(...lines.map((line) => line.end(1, 0.8)));
   yield* all(...texts.map((tex) => tex.scale(1, 0.8)));
+
+  equalsTo().save();
+  equalsTo().x(200);
+
+  total().save();
+  total().x(350);
+  total().text("7");
+
+  yield* all(equalsTo().scale(1, 0.4), total().scale(1, 0.4));
 
   yield* chain(...range(7).map(() => makeBlink(t)));
   lines.forEach((line) => {
     line.opacity(0);
     line.end(0);
   });
-  yield* all(...texts.map((tex) => tex.scale(0, 0.1)));
+  yield* all(
+    ...texts.map((tex) => tex.scale(0, 0.1)),
+    equalsTo().scale(0, 0.2),
+    total().scale(0, 0.2)
+  );
 
   yield* all(word().text("HOW ARE YOU?", 1));
-  yield* all(...lines2.map((line) => line.end(1, 0.8)));
+
+  equalsTo().restore();
+  total().restore();
+
+  lines2.forEach((line) => line.opacity(1));
+  yield* all(...lines2.map((l) => l.end(1, 0.8)));
   yield* all(...texts2.map((tex) => tex.scale(1, 0.8)));
+  yield* all(equalsTo().scale(1, 0.2), total().scale(1, 0.2));
+
+  // start blinking
+  yield chain(...range(30).map(() => makeBlink(t, 1.5)));
+  // strart rotation
+  const rotationTask: ThreadGenerator = yield loop(Infinity, () =>
+    redCircle().rotation(360, 4, linear).to(0, 4, linear)
+  );
+  yield* waitFor(3);
+  lastLine().opacity(1);
+  yield* all(lastLine().end(1, 0.8), redCircle().opacity(1, 0.8));
+
+  yield* waitFor(3);
+  yield* node().x(-1900, 0.8);
+  cancel(rotationTask);
+  node().remove();
 }
 
 function* blinkingTable(view: View2D) {
   const boxRef: Layout[] = [];
   const title = createRef<Txt>();
+  const layout = createRef<Layout>();
 
   function textBox(index: number) {
     const startingPoint = 65;
@@ -808,7 +854,7 @@ function* blinkingTable(view: View2D) {
       layout
       gap={40}
       direction={"column"}
-      // justifyContent={"center"}
+      ref={layout}
       alignItems={"center"}
       wrap={"wrap"}
       textWrap
@@ -826,6 +872,9 @@ function* blinkingTable(view: View2D) {
     chain(...boxRef.map((b) => b.scale(0, 0.05))),
     title().text("", 0.3)
   );
+
+  title().remove();
+  layout().remove();
 }
 
 function* drawA(view: View2D) {

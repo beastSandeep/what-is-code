@@ -22,7 +22,7 @@ import {
   clamp,
   createRef,
   createSignal,
-  easeInBack,
+  delay,
   easeInElastic,
   easeInExpo,
   easeOutBack,
@@ -30,7 +30,6 @@ import {
   easeOutExpo,
   linear,
   loop,
-  LoopCallback,
   makeRef,
   range,
   Reference,
@@ -45,8 +44,16 @@ import thinkingBase from "../assets/img/thinkingBase.svg";
 import thinkingIdea from "../assets/img/thinkingIdea.svg";
 import questionMarksImage from "../assets/img/questionMark.jpg";
 import blinkVid from "../assets/vid/blink.mp4";
+import strangerThingsImg from "../assets/img/strangerThings.jpg";
 import { Torch } from "../components/Torch";
 import { SoundVisualizer } from "../components/SoundVisualizer";
+import {
+  SYMBOLS_COLLECTION,
+  getMorseInfo,
+  MORSE_CODE_TABLE,
+  ALPHABETS_COLLECTION,
+  NUMBERS_COLLECTION,
+} from "../utils/morseCode";
 
 export default makeScene2D(function* (view) {
   const isFinal = useScene().variables.get("isFinal", true)();
@@ -431,17 +438,17 @@ export default makeScene2D(function* (view) {
 
   yield* waitUntil("blink");
 
-  yield* blinkingCons(view);
+  const preRef = yield* blinkingCons(view);
 
-  yield* twoTypesBlinking(view);
+  yield* twoTypesBlinking(view, preRef);
 
-  yield* waitUntil("end");
+  yield* all(cam().centerOn([0, 0], 0.8), cam().zoom(1, 0.8));
+  yield* cam().x(1700, 1);
 });
-
-function* twoTypesBlinking(view: View2D) {}
 
 function* blinkingCons(view: View2D) {
   const t = createRef<Torch>();
+  const howAreYouTextAndItsLinesAndBlinksCount = createRef<Node>();
   const node = createRef<Node>();
   const text = createRef<Txt>();
   const equalsTo = createRef<Txt>();
@@ -484,71 +491,22 @@ function* blinkingCons(view: View2D) {
   };
 
   view.add(
-    <Node ref={node}>
+    <>
       <Torch scale={0} ref={t} isOn={false} x={-500} y={100} />
-      <Txt
-        ref={text}
-        fill={"#fffd"}
-        fontSize={100}
-        fontWeight={700}
-        fontFamily={"Arial"}
-        opacity={0}
-      >
-        was it <Txt fill={"yellow"}>AA</Txt> or <Txt fill={"yellow"}>B</Txt>
-      </Txt>
-
-      <Txt
-        ref={word}
-        fill={"#fffd"}
-        fontSize={100}
-        fontWeight={700}
-        fontFamily={"Arial"}
-        y={-400}
-        letterSpacing={20}
-        opacity={0.9}
-      />
-
-      {/* BAD */}
-      <Node>
-        <Line
-          {...lineProps}
-          ref={makeRef(lines, 0)}
-          points={[
-            [-100, -350],
-            [-100, -220],
-          ]}
-        />
-        <Txt {...lettersProps} ref={makeRef(texts, 0)}>
-          2
-        </Txt>
-
-        <Line
-          {...lineProps}
-          ref={makeRef(lines, 1)}
-          points={[
-            [-10, -350],
-            [-10, -220],
-          ]}
-        />
-        <Txt {...lettersProps} ref={makeRef(texts, 1)} x={-10}>
-          1
-        </Txt>
-
-        <Line
-          {...lineProps}
-          ref={makeRef(lines, 2)}
-          points={[
-            [80, -350],
-            [80, -220],
-          ]}
-        />
-        <Txt {...lettersProps} ref={makeRef(texts, 2)} x={80}>
-          4
-        </Txt>
-      </Node>
 
       {/* HOW ARE YOU? */}
-      <Node>
+      <Node ref={howAreYouTextAndItsLinesAndBlinksCount}>
+        <Txt
+          ref={word}
+          fill={"#fffd"}
+          fontSize={100}
+          fontWeight={700}
+          fontFamily={"Arial"}
+          y={-400}
+          letterSpacing={20}
+          opacity={0.95}
+        />
+
         <Line
           {...lineProps}
           ref={makeRef(lines2, 0)}
@@ -727,9 +685,61 @@ function* blinkingCons(view: View2D) {
         />
       </Node>
 
+      <Node ref={node}>
+        <Txt
+          ref={text}
+          fill={"#fffd"}
+          fontSize={100}
+          fontWeight={700}
+          fontFamily={"Arial"}
+          opacity={0}
+        >
+          was it <Txt fill={"yellow"}>AA</Txt> or <Txt fill={"yellow"}>B</Txt>
+        </Txt>
+
+        {/* BAD */}
+        <Node>
+          <Line
+            {...lineProps}
+            ref={makeRef(lines, 0)}
+            points={[
+              [-100, -350],
+              [-100, -220],
+            ]}
+          />
+          <Txt {...lettersProps} ref={makeRef(texts, 0)}>
+            2
+          </Txt>
+
+          <Line
+            {...lineProps}
+            ref={makeRef(lines, 1)}
+            points={[
+              [-10, -350],
+              [-10, -220],
+            ]}
+          />
+          <Txt {...lettersProps} ref={makeRef(texts, 1)} x={-10}>
+            1
+          </Txt>
+
+          <Line
+            {...lineProps}
+            ref={makeRef(lines, 2)}
+            points={[
+              [80, -350],
+              [80, -220],
+            ]}
+          />
+          <Txt {...lettersProps} ref={makeRef(texts, 2)} x={80}>
+            4
+          </Txt>
+        </Node>
+      </Node>
+
       <Txt {...lettersProps} ref={equalsTo} fill={"white"} x={600} text={"="} />
       <Txt {...lettersProps} ref={total} x={720} fontSize={70} text={"131"} />
-    </Node>
+    </>
   );
 
   yield* t().scale(1, 0.8, easeOutElastic);
@@ -789,9 +799,42 @@ function* blinkingCons(view: View2D) {
   yield* all(lastLine().end(1, 0.8), redCircle().opacity(1, 0.8));
 
   yield* waitFor(3);
-  yield* node().x(-1900, 0.8);
+
+  howAreYouTextAndItsLinesAndBlinksCount().save();
+  equalsTo().save();
+  total().save();
+  yield* all(
+    howAreYouTextAndItsLinesAndBlinksCount().x(-1900, 0.8),
+    equalsTo().x(-1900, 0.8),
+    total().x(-1900, 0.8)
+  );
+
+  howAreYouTextAndItsLinesAndBlinksCount().restore();
+  lines2.forEach((l) => l.opacity(0));
+  texts2.forEach((l) => l.opacity(0));
+  word().opacity(0);
+  redCircle().opacity(0);
+  lastLine().opacity(0);
+
+  equalsTo().restore();
+  equalsTo().opacity(0);
+
+  total().restore();
+  total().opacity(0);
+
   cancel(rotationTask);
   node().remove();
+
+  return {
+    torch: t,
+    word,
+    lines: lines2,
+    counts: texts2,
+    redCircle,
+    lastLine,
+    equalsTo,
+    total,
+  };
 }
 
 function* blinkingTable(view: View2D) {
@@ -1140,4 +1183,380 @@ function* drawCorruptU(view: View2D) {
   yield* chain(...quadLines.map((q) => q.end(1, 0.6)));
   yield* chain(...letters.map((l) => l.scale(1, 0.5)));
   return node;
+}
+
+function* twoTypesBlinking(
+  view: View2D,
+  o: {
+    torch: Reference<Torch>;
+    word: Reference<Txt>;
+    lines: Line[];
+    counts: Txt[];
+    redCircle: Reference<Rect>;
+    lastLine: Reference<Line>;
+    equalsTo: Reference<Txt>;
+    total: Reference<Txt>;
+  }
+) {
+  yield* waitFor(1);
+  // const textRefs: Txt[] = [];
+  // const lines: Line[] = [];
+  // const textBoxes: Rect[] = [];
+
+  const node = createRef<Node>();
+  const title = createRef<Txt>();
+  const longText = createRef<Txt>();
+  const shortText = createRef<Txt>();
+  const longLine = createRef<Line>();
+  const shortLine = createRef<Line>();
+
+  view.add(
+    <>
+      <Node ref={node}>
+        <Txt
+          ref={title}
+          text={"Blinking Types"}
+          fill={"#e4e4e7"}
+          fontFamily={"Arial"}
+          fontWeight={600}
+          fontSize={90}
+          y={-400}
+          scale={0}
+        />
+
+        <Line
+          end={0}
+          opacity={0}
+          ref={longLine}
+          lineWidth={8}
+          lineCap={"round"}
+          lineDash={[20, 20]}
+          endArrow
+          stroke={"#e4e4e7"}
+          points={[
+            [-100, -325],
+            [-250, -100],
+          ]}
+        />
+
+        <Txt
+          ref={longText}
+          text={"long"}
+          fill={"#e4e4e7"}
+          fontFamily={"Arial"}
+          fontWeight={600}
+          fontSize={60}
+          y={-50}
+          x={-250}
+          scale={0}
+        />
+
+        <Line
+          end={0}
+          opacity={0}
+          ref={shortLine}
+          lineWidth={8}
+          lineCap={"round"}
+          lineDash={[20, 20]}
+          endArrow
+          stroke={"#e4e4e7"}
+          points={[
+            [100, -325],
+            [250, -100],
+          ]}
+        />
+
+        <Txt
+          ref={shortText}
+          text={"short"}
+          fill={"#e4e4e7"}
+          fontFamily={"Arial"}
+          fontWeight={600}
+          fontSize={60}
+          y={-50}
+          x={250}
+          scale={0}
+        />
+      </Node>
+    </>
+  );
+
+  yield all(o.torch().y(200, 1), o.torch().x(-600, 1));
+
+  yield* title().scale(1, 0.8);
+
+  yield* waitUntil("long");
+  longLine().opacity(1);
+  yield* longLine().end(1, 0.6);
+  yield* longText().scale(1, 0.5);
+  yield* o.torch().dash();
+
+  shortLine().opacity(1);
+  yield* shortLine().end(1, 0.6);
+  yield* shortText().scale(1, 0.4);
+  yield* o.torch().dot();
+
+  yield* waitUntil("32");
+  yield* node().x(-1500, 0.8);
+  o.lines.forEach((l) => {
+    l.opacity(1);
+    l.end(0);
+  });
+  yield* all(
+    o.word().opacity(1, 0.5),
+    delay(0.5, all(...o.lines.map((l) => l.end(1, 0.6))))
+  );
+
+  const counting: string[] = ["4", "3", "3", "2", "3", "1", "4", "3", "3"];
+  o.counts.forEach((c, i) => c.text(counting[i]));
+  yield* all(...o.counts.map((l) => l.opacity(1, 0.6)));
+
+  // start blinking torch
+  function playMorse(letter: string, torch: Reference<Torch>) {
+    const { code } = getMorseInfo(letter);
+    const arr = code.split("");
+    const gArr = arr.map((c) =>
+      c === "." ? torch().dot(0.2) : torch().dash(0.4)
+    );
+
+    gArr.push(waitFor(0.2));
+    return gArr;
+  }
+
+  yield chain(
+    ...playMorse("H", o.torch),
+    ...playMorse("O", o.torch),
+    ...playMorse("W", o.torch),
+    ...playMorse("A", o.torch),
+    ...playMorse("R", o.torch),
+    ...playMorse("E", o.torch),
+    ...playMorse("Y", o.torch),
+    ...playMorse("O", o.torch),
+    ...playMorse("U", o.torch),
+    ...playMorse("?", o.torch)
+  );
+
+  o.lastLine().opacity(1);
+  o.lastLine().end(0);
+
+  yield* waitFor(1);
+
+  yield* o.lastLine().end(1, 0.6);
+
+  const blinksCountforQuestionMark = o.counts[o.counts.length - 1].clone();
+  blinksCountforQuestionMark.x(470);
+  blinksCountforQuestionMark.text("6");
+  blinksCountforQuestionMark.opacity(0);
+
+  view.add(blinksCountforQuestionMark);
+  yield* all(
+    o.redCircle().opacity(1, 0.6),
+    o.redCircle().stroke("#4ade80", 0.6),
+    blinksCountforQuestionMark.opacity(1, 0.6)
+  );
+
+  o.total().text("32");
+
+  yield* all(o.equalsTo().opacity(1, 0.6), o.total().opacity(1, 0.6));
+
+  yield* waitUntil("stangerThings");
+
+  yield* all(
+    o.word().x(1500, 0.8),
+    o.equalsTo().x(1500, 0.8),
+    o.total().x(1500, 0.8),
+    ...o.lines.map((l) => l.x(1500, 0.8)),
+    ...o.counts.map((l) => l.x(1500, 0.8)),
+    o.lastLine().x(1500, 0.8),
+    blinksCountforQuestionMark.x(1500, 0.8),
+    o.redCircle().x(1500, 0.8),
+    o.torch().x(1500, 0.8)
+  );
+
+  const strangerThingsRef = createRef<Img>();
+  const morseCodeTextRef = createRef<Txt>();
+  const longBlinkRef = createRef<Txt>();
+  const shortBlinkRef = createRef<Txt>();
+  const dashRef = createRef<Txt>();
+  const dotRef = createRef<Txt>();
+
+  view.add(
+    <Img ref={strangerThingsRef} src={strangerThingsImg} scale={0} y={-80} />
+  );
+
+  yield* strangerThingsRef().scale(0.8, 0.8);
+
+  yield* waitUntil("morseCode");
+
+  const textprops: TxtProps = {
+    fontFamily: "Poppins",
+    fill: "white",
+    fontSize: 60,
+    fontWeight: 600,
+    opacity: 0,
+  };
+
+  view.add(
+    <>
+      <Txt
+        ref={morseCodeTextRef}
+        fill={"white"}
+        scale={0}
+        fontFamily={"Poppins"}
+        fontSize={150}
+        fontWeight={700}
+        text={"Morse Code"}
+        shadowColor={"white"}
+        shadowBlur={15}
+      />
+      <Txt
+        ref={longBlinkRef}
+        y={-200}
+        {...textprops}
+        x={-400}
+        text={"Long Blink"}
+      />
+
+      <Txt
+        ref={dashRef}
+        y={200}
+        fontFamily={"Poppins"}
+        fontSize={40}
+        fill={"#fffd"}
+        x={-400}
+        text={"Dash(_)"}
+        opacity={0}
+      />
+
+      <Txt
+        ref={shortBlinkRef}
+        y={-200}
+        x={400}
+        {...textprops}
+        text={"Short Blink"}
+      />
+
+      <Txt
+        ref={dotRef}
+        y={200}
+        fontFamily={"Poppins"}
+        fontSize={40}
+        fill={"#fffd"}
+        x={400}
+        text={"Dot(.)"}
+        opacity={0}
+      />
+    </>
+  );
+
+  yield* all(
+    strangerThingsRef().scale(0, 0.4),
+    delay(0.4, morseCodeTextRef().scale(1, 0.6))
+  );
+
+  yield* morseCodeTextRef().y(-450, 1.5);
+  yield* waitFor(2);
+  yield* all(
+    longBlinkRef().opacity(1, 0.6),
+    longBlinkRef().y(0, 0.6),
+    delay(0.2, all(dashRef().y(110, 0.6), dashRef().opacity(1, 0.6)))
+  );
+
+  yield* all(
+    shortBlinkRef().opacity(1, 0.6),
+    shortBlinkRef().y(0, 0.6),
+    delay(0.2, all(dotRef().y(110, 0.6), dotRef().opacity(1, 0.6)))
+  );
+
+  yield* waitUntil("morseTable");
+  yield* all(
+    longBlinkRef().opacity(0, 0.6),
+    longBlinkRef().y(-200, 0.6),
+    shortBlinkRef().opacity(0, 0.6),
+    shortBlinkRef().y(-200, 0.6),
+    dashRef().y(200, 0.6),
+    dashRef().opacity(0, 0.6),
+    dotRef().y(200, 0.6),
+    dotRef().opacity(0, 0.6)
+  );
+
+  yield* morseCodeTextRef().text("Morse Table", 1);
+  const boxRef: Layout[] = [];
+
+  const layout = createRef<Layout>();
+
+  function morseBox(alphabet: string, index: number) {
+    const box = (
+      <Layout
+        ref={makeRef(boxRef, index)}
+        layout
+        gap={30}
+        alignItems={"center"}
+        alignSelf={"start"}
+        scale={0}
+      >
+        <Txt
+          fill={"white"}
+          fontFamily={"Poppins"}
+          fontSize={50}
+          opacity={0.9}
+          fontWeight={700}
+          text={alphabet}
+        />
+        {/* <Icon
+          scale={4}
+          opacity={0.4}
+          icon={"material-symbols:line-end-arrow-notch-rounded"}
+        /> */}
+
+        <Txt
+          fontFamily={"Poppins"}
+          fill={"#ddd"}
+          fontSize={45}
+          opacity={0.8}
+          fontWeight={400}
+          text={MORSE_CODE_TABLE[alphabet]}
+        />
+      </Layout>
+    );
+
+    return box;
+  }
+
+  view.add(
+    <Layout
+      y={100}
+      x={40}
+      width={view.width}
+      height={view.height() - 200}
+      layout
+      gap={38}
+      direction={"column"}
+      ref={layout}
+      alignItems={"center"}
+      wrap={"wrap"}
+      textWrap
+    >
+      {...ALPHABETS_COLLECTION.map((a, index) => morseBox(a, index))}
+
+      {...NUMBERS_COLLECTION.map((n, index) =>
+        morseBox(n, index + ALPHABETS_COLLECTION.length)
+      )}
+      {...SYMBOLS_COLLECTION.map((s, index) =>
+        morseBox(
+          s,
+          index + ALPHABETS_COLLECTION.length + NUMBERS_COLLECTION.length
+        )
+      )}
+    </Layout>
+  );
+
+  yield* chain(...boxRef.map((r) => r.scale(1, 0.1)));
+
+  yield* waitUntil("end");
+
+  yield* all(
+    ...boxRef.map((r) => r.scale(0, 0.3)),
+    morseCodeTextRef().text("", 0.3)
+  );
 }

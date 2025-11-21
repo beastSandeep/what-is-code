@@ -4,13 +4,14 @@ import hook from "./scenes/hook?scene";
 import intro from "./scenes/intro?scene";
 import story from "./scenes/story?scene";
 import blinking from "./scenes/blinking?scene";
+import code from "./scenes/code?scene";
 
 import audio from "../src/audios/script.wav";
 
 import "./global.css";
 
 export default makeProject({
-  scenes: [hook, intro, story, blinking],
+  scenes: [hook, intro, story, blinking, code],
   audio,
   experimentalFeatures: true,
   variables: { isFinal: false },

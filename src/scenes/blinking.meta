@@ -26,8 +26,28 @@
       "targetTime": 85.4400589230154
     },
     {
+      "name": "long",
+      "targetTime": 105.09167379487583
+    },
+    {
+      "name": "32",
+      "targetTime": 111.40121269698376
+    },
+    {
+      "name": "stangerThings",
+      "targetTime": 127.88262133738232
+    },
+    {
+      "name": "morseCode",
+      "targetTime": 136.32231279294533
+    },
+    {
+      "name": "morseTable",
+      "targetTime": 145.25833606382272
+    },
+    {
       "name": "end",
-      "targetTime": 374.96654140968235
+      "targetTime": 156.42374982397138
     }
   ],
   "seed": 155264616
